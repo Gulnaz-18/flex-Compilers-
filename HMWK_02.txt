@@ -1,0 +1,289 @@
+#----------------------------------------------------------------------
+Programming Assignment 02
+
+#----------------------------------------------------------------------
+Purpose:
+
+  * Demonstrate ability to write simple Regular Expressions and
+      associated action routines for a flex lexer.
+
+#----------------------------------------------------------------------
+Background:
+
+  * If you completed PA 01 successfully, you already have all of
+      the development environment you need.  If you are having
+      difficulties with that, refer to the information in
+      HMWK_01.txt for more details.
+
+  * Read "flex Notes, v1.1.pdf", posted in the Modules > Handouts
+      section for this course on Canvas.
+
+  * Ensure you have downloaded and studied the two minimal lexer
+      examples that are posted in the Modules > Samples section
+      for this course on Canvas.
+
+  * A double literal has the format we discussed in class:
+      (a) A string of decimal digits with a . either at the front,
+        the back, or in the middle and optionally followed by an
+        exponent.
+
+      (b) A string of decimal digits followed by an exponent.
+
+    An exponent is the letter e or E optionally followed by a sign
+      followed by a string of decimal digits.
+
+  * A string literal begins with a " mark and ends with a " mark.
+      In between may be zero or more characters, not to include
+      a " mark nor a newline.
+
+#----------------------------------------------------------------------
+Tasks:
+
+  1. Download hmwk_02_dalioba.zip from Canvas.
+
+  2. Unzip this files somewhere convenient.
+
+  3. Change 'dalioba' in the name of the directory to your NetID.
+     (Your NetID is three letters followed by four or five digits.
+      The directory name will now be something like
+      'hmwk_02_abc1234' but with _your_ NetID in place of
+      'abc1234'.)
+
+  4. Look in that directory.  There's a Template directory that
+     has some files in it.  Move them up one level into the
+     'hmwk_02_abc1234' directory.
+
+  5. Change the header lines in the files hmwk_02.l.
+
+      -- Line 1:  Family name first, then a comma, then
+                  personal name.
+
+      -- Line 2:  Your NetID.
+
+      -- Line 3:  The date you edited the file, in the format
+                  YYYY-MM-DD (all digits!).
+
+  6. Compile and run the lexer example thusly,
+
+    $ make
+    flex hmwk_02.l
+    %option yylineno entails a performance penalty ONLY on rules that can match newline characters
+    flex version 2.6.4 usage statistics:
+      scanner options: -ppsvB8 -Cem
+      24/2000 NFA states
+      13/1000 DFA states (45 words)
+      5 rules
+      Compressed tables always back-up
+      1/40 start conditions
+      17 epsilon states, 9 double epsilon states
+      8/100 character classes needed 133/500 words of storage, 0 reused
+      26 state/nextstate pairs created
+      21/5 unique/duplicate transitions
+      18/1000 base-def entries created
+      19/2000 (peak 30) nxt-chk entries created
+      25/2500 (peak 30) template nxt-chk entries created
+      0 empty table entries
+      5 protos created
+      5 templates created, 9 uses
+      6/256 equivalence classes created
+      5/256 meta-equivalence classes created
+      0 (0 saved) hash collisions, 11 DFAs equal
+      0 sets of reallocations needed
+      336 total table entries needed
+    gcc -g -Wall -Wextra -fsanitize=address -fsanitize=leak -static-libasan -o hmwk_02 lex.yy.c
+    $ ./hmwk_02 test-01.txt
+    (1:1-4) ID 'This'
+    (1:6-7) ID 'is'
+    (1:9-9) ID 'a'
+    (1:11) Illegal character '"' ignored.
+    (1:12-15) ID 'text'
+    (1:17-20) ID 'file'
+    (1:21) Illegal character '"' ignored.
+    (1:22) Illegal character ':' ignored.
+    (1:24-27) ID 'line'
+    (1:29-29) INTEGER_LITERAL 1
+    (1:30) Illegal character '.' ignored.
+    (2:1-4) ID 'This'
+    (2:6-7) ID 'is'
+    (2:9) Illegal character '"' ignored.
+    (2:10-13) ID 'line'
+    (2:15-15) INTEGER_LITERAL 2
+    (2:16) Illegal character '"' ignored.
+    (2:18-19) ID 'of'
+    (2:21-24) ID 'that'
+    (2:26-29) ID 'text'
+    (2:31-34) ID 'file'
+    (2:35) Illegal character '.' ignored.
+    (3:1-3) ID 'You'
+    (3:5-11) ID 'guessed'
+    (3:13-14) ID 'it'
+    (3:15) Illegal character ';' ignored.
+    (3:18-21) ID 'line'
+    (3:23-23) INTEGER_LITERAL 3
+    (3:24) Illegal character ',' ignored.
+    (3:26-28) ID 'not'
+    (3:30-33) ID 'line'
+    (3:35-35) INTEGER_LITERAL 2
+    (3:36) Illegal character '.' ignored.
+    (3:37-38) INTEGER_LITERAL 54
+    (3:39) Illegal character '.' ignored.
+    $
+
+  7. Now edit hmwk_02.l and add:
+      (a) New token kinds:  tok_COLON, tok_COMMA, tok_DBL_LIT,
+          tok_SEMICOLON, tok_STR_LIT, and tok_PERIOD.
+
+      (b) yylval needs another field, double dblval, for the
+          tok_DBL_LIT.  The tok_STR_LIT value can be left in
+          yytext, as tok_ID does already.
+
+      (c) Rules for the six new kinds of tokens.  Ensure your
+          regular expressions for the complex kinds tok_STR_LIT
+          and tok_DBL_LIT match the descriptions given above.
+
+      (d) Cases in the switch statement in the main() routine to
+          print messages for each of the new token kinds.  When
+          you write your printfs, ensure that you match the format
+          shown below for each of the new token kinds.  Use %g as
+          the format for printing the value of tok_DBL_LIT.
+
+  8. When you're done, remake and rerun your hmwk_02.l file.  It
+      should now look like this,
+
+    $ make
+    flex hmwk_02.l
+    %option yylineno entails a performance penalty ONLY on rules that can match newline characters
+    flex version 2.6.4 usage statistics:
+      scanner options: -ppsvB8 -Cem
+      76/2000 NFA states
+      30/1000 DFA states (135 words)
+      11 rules
+      Compressed tables always back-up
+      1/40 start conditions
+      49 epsilon states, 29 double epsilon states
+      26/100 character classes needed 219/500 words of storage, 0 reused
+      87 state/nextstate pairs created
+      56/31 unique/duplicate transitions
+      34/1000 base-def entries created
+      53/2000 (peak 71) nxt-chk entries created
+      16/2500 (peak 52) template nxt-chk entries created
+      0 empty table entries
+      9 protos created
+      4 templates created, 7 uses
+      13/256 equivalence classes created
+      4/256 meta-equivalence classes created
+      0 (0 saved) hash collisions, 29 DFAs equal
+      0 sets of reallocations needed
+      443 total table entries needed
+    gcc -g -Wall -Wextra -fsanitize=address -fsanitize=leak -static-libasan -o hmwk_02 lex.yy.c
+    $ ./hmwk_02 test-01.txt
+    (1:1-4) ID 'This'
+    (1:6-7) ID 'is'
+    (1:9-9) ID 'a'
+    (1:11-21) STRING_LITERAL "text file"
+    (1:22-22) COLON
+    (1:24-27) ID 'line'
+    (1:29-30) DOUBLE_LITERAL 1
+    (2:1-4) ID 'This'
+    (2:6-7) ID 'is'
+    (2:9-16) STRING_LITERAL "line 2"
+    (2:18-19) ID 'of'
+    (2:21-24) ID 'that'
+    (2:26-29) ID 'text'
+    (2:31-34) ID 'file'
+    (2:35-35) PERIOD
+    (3:1-3) ID 'You'
+    (3:5-11) ID 'guessed'
+    (3:13-14) ID 'it'
+    (3:15-15) SEMICOLON
+    (3:18-21) ID 'line'
+    (3:23-23) INTEGER_LITERAL 3
+    (3:24-24) COMMA
+    (3:26-28) ID 'not'
+    (3:30-33) ID 'line'
+    (3:35-38) DOUBLE_LITERAL 2.54
+    (3:39-39) PERIOD
+    $
+
+  9. Ensure your message formats match EXACTLY.  Your submission
+      is going to be evaluated by diffing your output against a
+      reference solution.
+
+#----------------------------------------------------------------------
+Submission:
+
+Make a zipfile of your 'hmwk_02_abc1234' directory (with 'abc1234'
+changed to YOUR NetID and with your hmwk_02.l file in it) and
+submit this zipfile on Canvas as your results for this assignment.
+
+All your zipfile should include is a directory with one file in
+it, your version of hmwk_02.l (did you update the headers
+correctly?).
+
+Do NOT include any other files.
+
+#----------------------------------------------------------------------
+Hints:
+  1. Ensure your program compiles and runs correctly.  You should
+     not get ANY warnings or errors when you compile.  ALWAYS
+     compile your code with -Wall and -Wextra and deal with ANY
+     warnings or errors that are identified.  ALWAYS compile your
+     code with -fsanitize=leak and -fsanitize=address and deal with
+     ANY warnings or errors reported.
+
+     Generating warnings or errors, not compiling, not running,
+     core dumping, crashing, going into an infinite loop, getting
+     the wrong answers, getting memory errors ... will earn you
+     ZERO points.
+
+     Ensure your output messages match the format shown above when
+     you add your own cases to the switch function in main().  The
+     output is going to be checked by a program, so it has to
+     match EXACTLY.  Not matching EXACTLY will earn you ZERO
+     points.
+
+     ('EXACTLY' means character-by-character the same.  No, e.g.,
+      differences in spacing, no changes in wording, no changes
+      in punctuation, no changes in capitalization, and so forth.)
+
+  2. Ensure that you update the three header lines in the source
+     file with YOUR name (family name first, then a comma, then
+     your personal name), YOUR NetID, and the date you edit the
+     file, in the format YYYY-MM-DD (all digits!).
+
+     Not updating the header lines properly will cost you points.
+
+  3. Ensure your submission is packaged EXACTLY as described above.
+
+      -- Your submission should be a ZIP FILE (not a tar, rar, gz,
+         or any other kind of compressed file).
+
+      -- The zip file should be named 'hmwk_02_abc1234.zip' (with
+         'abc1234' replaced with YOUR NetID).
+
+      -- This zip file should have ONE item in it, a directory
+         named 'hmwk_02_abc1234'  (with 'abc1234' replaced with
+         YOUR NetID).
+
+      -- Your file should be in that directory.  The file should
+         be named hmwk_02.l.
+
+     Submissions in the wrong format score ZERO points.
+
+  4. Your submission is going to be tried against another test
+     file when it's evaluated for credit.  You DEFINITELY need to
+     make some test cases of your own to ensure that your regular
+     expressions for tok_DBL_LIT and tok_STR_LIT are working
+     properly.
+
+  5. After you submit your zip file on Canvas, download it from
+     Canvas into an empty directory, unzip it, and check that your
+     submission is in the proper format, that the program runs and
+     prints the correct output, that you updated the header lines
+     correctly, and so forth.
+
+  6. Are you CERTAIN you complied with all of these nit-picking
+     instructions?  Really?  Maybe you ought to check just one
+     more time. :)
+
+#----------------------------------------------------------------------
