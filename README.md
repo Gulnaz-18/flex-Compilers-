@@ -1,9 +1,6 @@
 # flex
 Implementing regular expressions 
-Program written in C using flex
-# Dalio, Brian A.
-# dalioba
-# 2020-09-24
+Program written in C using flex. Makefile is provided by Dr. Dalio 
 
 PROJS  = hmwk_02
 CC     = gcc
